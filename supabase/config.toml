@@ -16,7 +16,7 @@ enabled = true
 [functions.telegram-webhook]
 verify_jwt = false
 
-[functions.dispatch-reminders]
+[functions.dispatcher]
 verify_jwt = false
 
 [functions.cleanup-storage]
