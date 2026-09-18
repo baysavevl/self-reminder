@@ -1,0 +1,11 @@
+:root { color-scheme: dark; font-family: Inter, system-ui, sans-serif; }
+body { width: 300px; margin: 0; background: #0b1220; color: #eef2ff; }
+main { padding: 22px; }
+.eyebrow { color: #8b7cff; font-size: 11px; font-weight: 800; letter-spacing: .18em; }
+h1 { margin: 8px 0 4px; font-size: 26px; }
+.muted, .hint { color: #a8b2c8; font-size: 13px; line-height: 1.45; }
+button { width: 100%; border: 1px solid #34415e; border-radius: 10px; padding: 11px 12px; background: #131d31; color: #eef2ff; cursor: pointer; font-weight: 700; }
+button:hover { border-color: #8b7cff; }
+.primary { margin: 15px 0 10px; border: 0; background: #7658f5; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.hint { margin: 17px 0 0; font-size: 11px; }

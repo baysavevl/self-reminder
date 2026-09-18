@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "Self Reminder",
+  "description": "Mở nhanh lịch nhắc cá nhân từ trình duyệt.",
+  "version": "0.1.0",
+  "permissions": ["tabs"],
+  "action": {
+    "default_title": "Self Reminder",
+    "default_popup": "popup.html"
+  }
+}
