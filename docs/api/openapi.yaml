@@ -1,0 +1,90 @@
+openapi: 3.1.0
+info:
+  title: Self Reminder Agent API
+  version: 1.0.0
+  description: Read and manage personal reminders for agents and automation workflows.
+servers:
+  - url: https://self-reminder.vercel.app/api/v1
+security:
+  - bearerAuth: []
+paths:
+  /reminders:
+    get:
+      operationId: listReminders
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: type, in: query, schema: { $ref: '#/components/schemas/ReminderType' } }
+        - { name: from, in: query, schema: { type: string, format: date-time } }
+        - { name: to, in: query, schema: { type: string, format: date-time } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+      responses:
+        '200': { description: Reminder list, content: { application/json: { schema: { type: object, required: [data], properties: { data: { type: array, items: { $ref: '#/components/schemas/Reminder' } } } } } } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    post:
+      operationId: createReminder
+      security: [{ bearerAuth: [] }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ReminderInput' } } } }
+      responses:
+        '201': { description: Created reminder, content: { application/json: { schema: { type: object, required: [data], properties: { data: { $ref: '#/components/schemas/Reminder' } } } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /reminders/{id}:
+    parameters: [{ name: id, in: path, required: true, schema: { type: string, format: uuid } }]
+    get:
+      operationId: getReminder
+      responses: { '200': { description: Reminder, content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/Reminder' } } } } } }, '404': { $ref: '#/components/responses/NotFound' } }
+    patch:
+      operationId: updateReminder
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ReminderPatch' } } } }
+      responses: { '200': { description: Updated reminder }, '400': { $ref: '#/components/responses/BadRequest' }, '403': { $ref: '#/components/responses/Forbidden' }, '404': { $ref: '#/components/responses/NotFound' } }
+    delete:
+      operationId: deleteReminder
+      responses: { '204': { description: Cancelled }, '403': { $ref: '#/components/responses/Forbidden' }, '404': { $ref: '#/components/responses/NotFound' } }
+  /reminders/{id}/complete:
+    post:
+      operationId: completeReminder
+      parameters: [{ name: id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses: { '200': { description: Completed reminder }, '403': { $ref: '#/components/responses/Forbidden' }, '404': { $ref: '#/components/responses/NotFound' } }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: agent-token }
+  schemas:
+    ReminderType: { type: string, enum: [personal, birthday, food] }
+    ReminderInput:
+      type: object
+      required: [title, type, starts_at]
+      properties:
+        title: { type: string, minLength: 1, maxLength: 200 }
+        type: { $ref: '#/components/schemas/ReminderType' }
+        starts_at: { type: string, format: date-time }
+        notes: { type: string }
+        timezone: { type: string, default: Asia/Ho_Chi_Minh }
+        recurrence_kind: { type: string, enum: [none, daily, weekly, monthly, yearly], default: none }
+        recurrence_interval: { type: integer, minimum: 1, default: 1 }
+    ReminderPatch:
+      type: object
+      minProperties: 1
+      properties:
+        title: { type: string, minLength: 1, maxLength: 200 }
+        type: { $ref: '#/components/schemas/ReminderType' }
+        starts_at: { type: string, format: date-time }
+        notes: { type: string }
+        timezone: { type: string }
+        recurrence_kind: { type: string, enum: [none, daily, weekly, monthly, yearly] }
+        recurrence_interval: { type: integer, minimum: 1 }
+    Reminder:
+      allOf:
+        - $ref: '#/components/schemas/ReminderInput'
+        - type: object
+          required: [id, status, created_at, updated_at]
+          properties:
+            id: { type: string, format: uuid }
+            status: { type: string, enum: [active, completed, cancelled] }
+            next_occurrence_at: { type: string, format: date-time, nullable: true }
+            created_at: { type: string, format: date-time }
+            updated_at: { type: string, format: date-time }
+  responses:
+    Unauthorized: { description: Missing or invalid token }
+    Forbidden: { description: Token lacks write scope }
+    BadRequest: { description: Invalid request }
+    NotFound: { description: Reminder not found }

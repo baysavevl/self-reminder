@@ -27,3 +27,14 @@ Configure the Telegram webhook to the deployed `telegram-webhook` URL. Enable th
 ## Verification
 
 `npm run typecheck`, `npm run build`, and `npm run test:run` pass locally. Supabase pgTAP verification requires Docker or a hosted Supabase project.
+# Agent integration
+
+Self Reminder now exposes an agent-facing REST contract and MCP endpoint:
+
+- OpenAPI: [`docs/api/openapi.yaml`](docs/api/openapi.yaml)
+- REST base URL: `https://self-reminder.vercel.app/api/v1`
+- MCP endpoint: `https://self-reminder.vercel.app/api/mcp`
+- MCP setup: [`mcp/README.md`](mcp/README.md)
+
+Agent tokens are scoped (`read` or `write`) and must be stored in the consuming agent's secret manager.
+
